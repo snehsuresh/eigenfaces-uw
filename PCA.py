@@ -6,17 +6,17 @@ import scipy.linalg as s_linalg
 
 class pca_class:
    
-    def __init__(self, images, y, target_names, no_of_elements, quality_percent):
+    def __init__(self, images, y, folder_names, no_of_elements, quality_percent):
         '''
         images: image matrix
         y: image labels
-        target: image target
+        folder: image target folder
         quality percent: how much quality to retain
         '''
         self.no_of_elements = no_of_elements
         self.images = np.asarray(images)
         self.y = y
-        self.target_names = target_names
+        self.folder_names = folder_names 
 
         # Centers each image in self.images around the mean face,
         mean = np.mean(self.images, 1) # 1 because we are finding mean along columns. 0 would have meant rows
@@ -97,8 +97,8 @@ class pca_class:
         #Temp Threshold
         threshold = 100000
         if distances[min] < threshold:
-            print("Person", k, ":", min, self.target_names[min])
-            return self.target_names[min]
+            print("Person", k, ":", min, self.folder_names[min])
+            return self.folder_names[min]
         else:
             print("Person", k, ":", min, 'Unknown')
             return 'Unknown'

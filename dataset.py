@@ -10,8 +10,8 @@ class dataset_class:
         self.dir = ("images/ORL")
 
         self.images_name_for_train = [] #image path
-        self.target_name_as_array= []  #whose image is at what index
-        self.target_name_as_set = {}
+        self.folder_name_as_array= []  #whose image is at what index
+        self.folder_name_as_set = {}
         self.y_for_train = [] #labels
         self.no_of_elements_for_train = [] # number of images for train
 
@@ -39,8 +39,8 @@ class dataset_class:
                                 self.no_of_elements_for_train += [1]
 
                             if i is 0:
-                                self.target_name_as_array += [name]
-                                self.target_name_as_set[per_no] = name
+                                self.folder_name_as_array += [name]
+                                self.folder_name_as_set[per_no] = name
 
                         else:
                             self.images_name_for_test += [img_path]
