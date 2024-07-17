@@ -48,7 +48,7 @@ class pca_class:
         '''
         Tells you how many singular values are needed to capture the quality 
         '''
-        sum = np.sum(d)
+        sum = np.sum(d) #sum of all eigen values.
         sum_85 = self.quality_percent * sum/100
         temp = 0
         p = 0

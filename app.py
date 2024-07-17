@@ -2,18 +2,17 @@ import cv2
 import time
 import numpy as np
 
-# importing algorithms
 from PCA import pca_class
-# from TwoDPCA import two_d_pca_class
+from TwoD_PCA import two_d_pca_class
 # from TwoD_Square_PCA import two_d_square_pca_class
 
 # importing feature extraction classes
 from image_2_matrix import images_to_matrix_class
-# from images_matrix_for_2d_square_pca import  images_to_matrix_class_for_two_d
+from image_2_2dmatrix import  images_to_matrix_class_for_two_d
 from dataset import dataset_class
 
 # Algo Type (pca, 2d-pca, 2d2-pca)
-algo_type = "pca"
+algo_type = "2d-pca"
 
 
 #for single image = 0
@@ -22,7 +21,10 @@ algo_type = "pca"
 reco_type = 1
 
 #No of images For Training(Left will be used as testing Image)
-no_of_images_of_one_person = 8
+if reco_type == 0:
+    no_of_images_of_one_person = 8
+else:
+    no_of_images_of_one_person = 10
 dataset_obj = dataset_class(no_of_images_of_one_person)
 
 
@@ -43,8 +45,8 @@ img_width, img_height = 50, 50
 
 if algo_type == "pca":
     i_t_m_c = images_to_matrix_class(images_names, img_width, img_height)
-# else:
-    # i_t_m_c = image_2_matrix_class_for_two_d(images_names, img_width, img_height)
+else:
+    i_t_m_c = images_to_matrix_class_for_two_d(images_names, img_width, img_height)
 
 images_matrix = i_t_m_c.get_matrix() #Get all flattened images along columns. CHange name to images as matrix
 
@@ -53,15 +55,15 @@ if algo_type == "pca":
     cv2.waitKey()
 else:
     cv2.imshow("Original Image" , cv2.resize(images_matrix[0],(200, 200)))
-    cv2.waitKey()
+    # cv2.waitKey()
 
 #Algo
 if algo_type == "pca":
-    my_algo = pca_class(images_matrix, y, folder_names, no_of_elements, 95)
-# elif algo_type == "2d-pca":
-#     my_algo = two_d_pca_class(scaled_face, y, folder_names)
+    my_algo = pca_class(images_matrix, y, folder_names, no_of_elements, 100)
+elif algo_type == "2d-pca":
+    my_algo = two_d_pca_class(images_matrix, y, folder_names)
 # else:
-#     my_algo = two_d_square_pca_class(scaled_face, y, folder_names)
+    # my_algo = two_d_square_pca_class(images_matrix, y, folder_names)
 
 
 new_coordinates = my_algo.reduce_dim()
@@ -144,7 +146,11 @@ if reco_type == 1:
             font = cv2.FONT_HERSHEY_SIMPLEX
             font_color = (255, 255, 255)
             font_stroke = 2
-            cv2.putText(frame, name + str(i), (x, y), font, 1, font_color, font_stroke, cv2.LINE_AA)
+            # cv2.putText(frame, name + str(i), (x, y), font, 1, font_color, font_stroke, cv2.LINE_AA)
+            cv2.putText(frame, name, (x, y), font, 1, font_color, font_stroke, cv2.LINE_AA)
+            print("--->", name)
+            if name.find('sneh') != -1:
+                break
             i += 1
 
         cv2.imshow('Colored Frame', frame)
@@ -159,17 +165,17 @@ if reco_type == 1:
 #For Group Image
 
 if reco_type == 2:
-    face_cascade = cv2.CascadeClassifier('cascades/daqta/haarcascade_frontalface_alt2.xml')
+    face_cascade = cv2.CascadeClassifier('cascades/data/haarcascade_frontalface_alt2.xml')
     dir = r'images/GroupImages/'
 
 
-    frame = cv2.imread(dir+ "group_image.jpg")
+    frame = cv2.imread(dir+ "3.jpeg")
 
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=3)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=1)
 
 
     i = 0
@@ -182,7 +188,7 @@ if reco_type == 2:
         cv2.rectangle(frame, (x, y), (x+w, y+h), rec_color, rec_stroke)
 
         new_cord = my_algo.new_cord_for_image(scaled)
-        print("New Cord PCA"+str(i), new_cord)
+        # print("New Cord PCA"+str(i), new_cord)
         name = my_algo.recognize_face(new_cord)
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_color = (255, 0, 0)
