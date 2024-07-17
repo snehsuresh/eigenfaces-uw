@@ -19,7 +19,7 @@ algo_type = "pca"
 #for single image = 0
 #for video = 1
 #for group image = 2
-reco_type = 0
+reco_type = 1
 
 #No of images For Training(Left will be used as testing Image)
 no_of_images_of_one_person = 8
@@ -57,7 +57,7 @@ else:
 
 #Algo
 if algo_type == "pca":
-    my_algo = pca_class(images_matrix, y, folder_names, no_of_elements, 90)
+    my_algo = pca_class(images_matrix, y, folder_names, no_of_elements, 95)
 # elif algo_type == "2d-pca":
 #     my_algo = two_d_pca_class(scaled_face, y, folder_names)
 # else:
@@ -91,25 +91,25 @@ if reco_type == 0:
     for img_path in images_names_for_test:
 
         time_start = time.process_time()
-        find_name = my_algo.recognize_face(my_algo.new_cord(img_path, img_height, img_width))
+        find_img_folder = my_algo.recognize_face(my_algo.new_cord(img_path, img_height, img_width))
         time_elapsed = (time.process_time() - time_start)
         net_time_of_reco += time_elapsed
         rec_y = y_for_test[i]
         rec_name = folder_names[rec_y]
-        if find_name is rec_name:
+        if find_img_folder is rec_name:
             correct += 1
-            print("Correct", " Name:", find_name)
+            print("Correct", " Name:", find_img_folder)
         else:
             wrong +=1
-            print("Wrong:", " Real Name:", rec_name, "Rec Y:", rec_y, "Find Name:", find_name)
+            print("Wrong:", " Real Name:", rec_name, "Rec Y:", rec_y, "Find Name:", find_img_folder)
         i+=1
 
     print("Correct", correct)
     print("Wrong", wrong)
     print("Total Test Images", i)
     print("Percent", correct/i*100)
-    print("Total Person", len(target_names))
-    print("Total Train Images", no_of_images_of_one_person * len(target_names))
+    print("Total Person", len(folder_names))
+    print("Total Train Images", no_of_images_of_one_person * len(folder_names))
     print("Total Time Taken for reco:", time_elapsed)
     print("Time Taken for one reco:", time_elapsed/i)
     print("Training Time", training_time)
@@ -147,8 +147,6 @@ if reco_type == 1:
             cv2.putText(frame, name + str(i), (x, y), font, 1, font_color, font_stroke, cv2.LINE_AA)
             i += 1
 
-
-
         cv2.imshow('Colored Frame', frame)
         if cv2.waitKey(20) & 0xFF == ord('q'):
             break
@@ -158,11 +156,11 @@ if reco_type == 1:
     cv2.destroyAllWindows()
 
 
-#For Image
+#For Group Image
 
 if reco_type == 2:
-    face_cascade = cv2.CascadeClassifier('cascades/data/haarcascade_frontalface_alt2.xml')
-    dir = r'images/Group/'
+    face_cascade = cv2.CascadeClassifier('cascades/daqta/haarcascade_frontalface_alt2.xml')
+    dir = r'images/GroupImages/'
 
 
     frame = cv2.imread(dir+ "group_image.jpg")

@@ -2,3 +2,4 @@ numpy
 matplotlib
 opencv-python
 scikit-learn
+# /Users/snehsuresh/anaconda3/envs/myenv/lib/python3.11/site-packages/cv2/

@@ -13,25 +13,25 @@ class pca_class:
         folder: image target folder
         quality percent: how much quality to retain
         '''
-        self.no_of_elements = no_of_elements
+        self.no_of_elements = no_of_elements #no of people, folders
         self.images = np.asarray(images)
         self.y = y
         self.folder_names = folder_names 
 
         # Centers each image in self.images around the mean face,
-        mean = np.mean(self.images, 1) # 1 because we are finding mean along columns. 0 would have meant rows
+        mean = np.mean(self.images, 1) # 1 because we are finding mean along columns. 0 would have meant rows. We take mean of every image in matrix
         self.mean_face = np.asmatrix(mean).T
-        self.images = self.images - self.mean_face
+        self.images = self.images - self.mean_face #centering the original image matrix around mean
         self.quality_percent = quality_percent
 
     def reduce_dim(self):
 
         U, sigma, VT = s_linalg.svd(self.images, full_matrices=True)
         '''
-        p and q are orthogonal.
-        p has the normalized eigen vectors. Left singular vectors
-        q is the transpose of right singular vectors of the image matrix
-        d would have the singular values of images matrix.
+        U and VT are orthogonal.
+        U has the normalized eigen vectors. Left singular vectors
+        VT is the transpose of right singular vectors of the image matrix
+        sigma would have the singular values of images matrix.
         
         inshort, p q and d are U, sigma and V^T in the SVD formula.
         '''
@@ -83,13 +83,13 @@ class pca_class:
         start = 0
         distances = []
         for i in range(classes):
-            # Retrieve the PCA coordinates of all images belonging to the current class i.
-            temp_imgs = self.new_coordinates[:, int(start): int(start + self.no_of_elements[i])]
+            # Retrieve the PCA coordinates(reduced dim) of all images belonging to the current class(folder) i.
+            temp_imgs = self.new_coordinates[:, int(start): int(start + self.no_of_elements[i])] 
             # Compute the mean PCA coordinates of the current class i along columns.
             mean_temp = np.mean(temp_imgs, 1)
             start = start + self.no_of_elements[i]
 
-            # Calculates the Euclidean distance between the PCA coordinates of the new face (new_cord_pca) and the mean PCA coordinates (mean_temp) of the current class:
+            # Calculates the Euclidean distance between the PCA coordinates of the new test face (new_cord_pca) and the mean PCA coordinates (mean_temp) of the current class:
             dist = np.linalg.norm(new_cord_pca - mean_temp)
             distances += [dist]
         min = np.argmin(distances)
@@ -104,15 +104,15 @@ class pca_class:
             return 'Unknown'
     
     
-    def new_cord(self, name, img_height, img_width):
+    def new_cord(self, img_path, img_height, img_width): #change name to path
         '''
-        Preprocess an image
+        Returns new coordinates of your test image in the new bases. For you model to recognize your test image, it has to be in the same bases as your PCA
         '''
-        img = cv2.imread(name)
+        img = cv2.imread(img_path)
         gray = cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (img_height, img_width))
-        img_vec = np.asmatrix(gray).ravel()
-        img_vec = img_vec.T
-        new_mean = ((self.mean_face * len(self.y)) + img_vec)/(len(self.y) + 1)
+        img_vec = np.asmatrix(gray).ravel() #flatten image
+        img_vec = img_vec.T #take transpose
+        new_mean = ((self.mean_face * len(self.y)) + img_vec)/(len(self.y) + 1) # find new mean after adding this image
         img_vec = img_vec - new_mean
         return np.dot(self.new_bases.T, img_vec)
 
@@ -130,7 +130,7 @@ class pca_class:
         min and max pixels intensity is the intensitry of pixels you want in grayscale
         '''
 
-        #Retrieve the specific column vector representing the selected eigenface.
+        #Retrieve the specific column vector representing the selected eigenface from the new coordinates
         ev = self.new_bases[:, eig_no:eig_no + 1]
 
         #Minimum and maximum values in the eigenface vector (ev).
@@ -142,7 +142,7 @@ class pca_class:
         ev = min_pix_int + (((max_pix_int - min_pix_int)/(max_orig - min_orig)) * ev)
        
         #reshape into 2D
-        ev_re = np.reshape(ev, (height, width))
+        ev_re = np.reshape(ev, (height, width)) #de flattening the image
         
         #show in 200x200. Pause until a key is pressed
         cv2.imshow("Eigen Face " + str(eig_no),  cv2.resize(np.array(ev_re, dtype = np.uint8),(200, 200)))
